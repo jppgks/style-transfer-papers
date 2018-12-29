@@ -1,6 +1,9 @@
 # Model files
 **/*shard*
 
+# Compiled by Parcel
+dist/
+
 # Logs
 logs
 *.log

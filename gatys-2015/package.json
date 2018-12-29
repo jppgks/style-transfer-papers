@@ -1,5 +1,21 @@
 {
   "dependencies": {
-    "@tensorflow/tfjs": "^0.14.1"
+    "@tensorflow/tfjs": "^0.14.1",
+    "@tensorflow/tfjs-vis": "^0.4.0"
+  },
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --open",
+    "build": "cross-env NODE_ENV=production parcel build index.html --no-minify --public-url ./",
+    "link-local": "yalc link",
+    "postinstall": "yarn upgrade --pattern @tensorflow"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "babel-preset-env": "^1.7.0",
+    "clang-format": "^1.2.4",
+    "cross-env": "^5.2.0",
+    "parcel-bundler": "^1.11.0",
+    "yalc": "^1.0.0-pre.27"
   }
 }
