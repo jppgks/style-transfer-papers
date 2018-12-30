@@ -8,7 +8,8 @@ window.tfvis = tfvis;
 window.model;
 
 async function initModel() {
-  const model_host = '127.0.0.1:8080';
+  // Replace with host serving VGG model over HTTP, then remove model/ from project dir
+  const model_host = '127.0.0.1:8080'; //'raw.githubusercontent.com/DavidCai1993/vgg19-tensorflowjs-model/master/model'; 
   window.model = await tf.loadModel(`http://${model_host}/model.json`);
   //window.model.summary();
 }
