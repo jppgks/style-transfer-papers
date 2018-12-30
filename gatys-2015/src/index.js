@@ -1,3 +1,9 @@
+import React from "react";
+import ReactDOM from "react-dom";
+
+import './css/tfjs-examples.css';
+import './css/index.css';
+
 import * as tf from '@tensorflow/tfjs';
 import * as tfvis from '@tensorflow/tfjs-vis';
 const path = require('path');
@@ -9,14 +15,10 @@ window.model;
 
 async function initModel() {
   // Replace with host serving VGG model over HTTP, then remove model/ from project dir
-  const model_host = '127.0.0.1:8080'; //'raw.githubusercontent.com/DavidCai1993/vgg19-tensorflowjs-model/master/model'; 
+  const model_host = '127.0.0.1:8080'; //'raw.githubusercontent.com/DavidCai1993/vgg19-tensorflowjs-model/master/model';
   window.model = await tf.loadModel(`http://${model_host}/model.json`);
   //window.model.summary();
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  initModel();
-});
 
 function formatShape(shape) {
   const oShape = shape.slice();
@@ -71,6 +73,54 @@ async function showModel() {
   const summaryContainer = document.getElementById('summary-canvas');
   tfvis.render.table({headers, values}, summaryContainer);
 }
-document.querySelector('#show-model').addEventListener('click', showModel);
 
+class RootComp extends React.Component {
+  constructor(props) {
+    super(props);
+    initModel();
+  }
+
+  componentDidMount() {
+    document.querySelector('#show-model').addEventListener('click', showModel);
+  }
+
+  render() {
+      return (<div>
+			 <div className="tfjs-example-container">
+				 <section className='title-area'>
+				   <h1>TensorFlow.js: Style Transfer</h1>
+				   <p className='subtitle'>TK subtitle
+				   </p>
+				 </section>
+				 
+				 <section>
+				   <p className='section-head'>Description</p>
+				   <p>
+					 TK
+				   </p>
+				 </section>
+				 
+				 <section>
+				   <p className='section-head'>Training Parameters</p>
+				   
+				   <button id="show-model">Describe Model</button>
+				 </section>
+				 
+				 <section>
+				   <p className='section-head'>Model Details</p>
+				   <div id="stats">
+					 <div className="canvases">
+					   <label id="summary-label"></label>
+					   <div id="summary-canvas"></div>
+					 </div>
+				   </div>
+				 </section>
+			</div>
+        </div>)
+  }
+}
+
+let App = document.getElementById("app");
+
+ReactDOM.render(<RootComp />, App);
 

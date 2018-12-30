@@ -1,7 +1,11 @@
 {
   "dependencies": {
     "@tensorflow/tfjs": "^0.14.1",
-    "@tensorflow/tfjs-vis": "^0.4.0"
+    "@tensorflow/tfjs-vis": "^0.4.0",
+    "assets": "^3.0.1",
+    "css": "^2.2.4",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0"
   },
   "scripts": {
     "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --open",
@@ -13,6 +17,7 @@
     "@babel/core": "^7.2.2",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
     "clang-format": "^1.2.4",
     "cross-env": "^5.2.0",
     "parcel-bundler": "^1.11.0",
