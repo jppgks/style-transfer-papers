@@ -1,12 +1,16 @@
 # Style transfer: papers
 
 <p align="center">
-  <img src="https://github.com/luanfujun/deep-photo-styletransfer/raw/master/examples/input/in13.png" height="194" width="290">
-  <img src="https://github.com/luanfujun/deep-photo-styletransfer/raw/master/examples/style/tar13.png" height="194" width="290">
-  <img src="https://github.com/luanfujun/deep-photo-styletransfer/raw/master/examples/final_results/best13_t_1000.png" height="194" width="290">
+  <img src="https://github.com/luanfujun/deep-painterly-harmonization/raw/master/data/17_target.jpg" width="290">
+  <img src="https://github.com/luanfujun/deep-painterly-harmonization/raw/master/results/17_naive_sherlock.jpg"  width="290">
+  <img src="https://github.com/luanfujun/deep-painterly-harmonization/raw/master/results/17_result_sherlock.jpg" width="290">
 </p>
 
-> Example from "Deep Photo Style Transfer" paper
+> Example from "Deep Painterly Harmonization" paper
+
+## 2018
+- Deep Painterly Harmonization
+  - [Arxiv](https://arxiv.org/abs/1804.03189)
 
 ## 2017
 - Visual Attribute Transfer through Deep Image Analogy
