@@ -44,13 +44,13 @@ class ModelDetails extends Component {
     this.toggleTable = this.toggleTable.bind(this);
 
     this.state = {
-      columns: this.getColumns(),
+      columns: ModelDetails.getColumns(),
       dataSource: this.getDataSource(),
       showTable: false
     }
   }
 
-  getColumns() {
+  static getColumns() {
     return [
       {
         title: 'Index', dataIndex: 'key', key: 'key',
