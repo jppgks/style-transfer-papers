@@ -24,7 +24,7 @@ class RootComp extends Component {
 
     const model_host = config.model.host;
 
-    tf.loadModel(`http://${model_host}/model.json`)
+    tf.loadModel(`${model_host}/model.json`)
       .then((model) => {
         this.model = model;
         this.setState({modelLoaded: true, modelLoading: false});
