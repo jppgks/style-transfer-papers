@@ -6,6 +6,8 @@ import ReactDOM from "react-dom";
 import ModelDetails from "./components/ModelDetails";
 import PredictRandomImage from "./components/PredictRandomImage";
 
+const config = require('./config');
+
 import {Button, Col, message, Row, Skeleton} from "antd";
 import "antd/dist/antd.css";
 
@@ -20,8 +22,7 @@ class RootComp extends Component {
       message.success('Model loaded successfully.');
     };
 
-    // Replace with host serving VGG model over HTTP, then remove model/ from project dir
-    const model_host = '127.0.0.1:8080'; // 'raw.githubusercontent.com/jppgks/vgg19-tensorflowjs-model/master/model';
+    const model_host = config.model.host;
 
     tf.loadModel(`http://${model_host}/model.json`)
       .then((model) => {
