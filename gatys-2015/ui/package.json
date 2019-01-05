@@ -4,9 +4,11 @@
     "@tensorflow/tfjs-node": "^0.2.1",
     "@tensorflow/tfjs-vis": "^0.4.0",
     "antd": "^3.11.6",
+    "apollo-boost": "^0.1.23",
     "assets": "^3.0.1",
     "css": "^2.2.4",
     "react": "^16.7.0",
+    "react-apollo": "^2.3.3",
     "react-dom": "^16.7.0",
     "yarn": "^1.12.3"
   },
@@ -23,6 +25,7 @@
     "babel-preset-react": "^6.24.1",
     "clang-format": "^1.2.4",
     "cross-env": "^5.2.0",
+    "graphql": "^14.0.2",
     "parcel-bundler": "^1.11.0",
     "yalc": "^1.0.0-pre.27"
   }

@@ -1,0 +1,23 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "netlify-lambda serve src/lambda",
+    "build": "netlify-lambda build src/lambda"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.17",
+    "@types/node": "^10.12.18",
+    "apollo-server-lambda": "^2.3.1",
+    "babel-loader": "^8.0.5",
+    "graphql": "^14.0.2",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.2.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-object-assign": "^7.2.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "netlify-lambda": "^1.1.1"
+  }
+}

@@ -1,16 +1,21 @@
-// import * as tf from '@tensorflow/tfjs';
-import * as tf from '@tensorflow/tfjs-node';
+import * as tf from '@tensorflow/tfjs';
 import * as tfvis from '@tensorflow/tfjs-vis';
 
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import ModelDetails from "./components/ModelDetails";
 import ContentLossRandomImage from "./components/ContentLossRandomImage";
+import {Button, Col, message, Row, Skeleton} from "antd";
+import "antd/dist/antd.css";
+
+import ApolloClient, {gql} from "apollo-boost";
+import {ApolloProvider, Query} from "react-apollo";
 
 const config = require('./config');
 
-import {Button, Col, message, Row, Skeleton} from "antd";
-import "antd/dist/antd.css";
+const client = new ApolloClient({
+  uri: config.api.uri
+});
 
 window.tf = tf;
 window.tfvis = tfvis;
@@ -75,6 +80,18 @@ class RootComp extends Component {
         <Row>
           <Col span={2}></Col>
           <Col span={20}>
+            <ApolloProvider client={client}>
+              <Query
+                query={gql`
+                          {
+                            info
+                          }
+                        `}
+              >
+                {({data}) =>
+                  <div>A greeting from the server: {data.info}</div>}
+              </Query>
+            </ApolloProvider>
             <h3>Description</h3>
             <p>TK</p>
           </Col>

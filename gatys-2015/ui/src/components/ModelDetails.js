@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import * as tf from '@tensorflow/tfjs-node';
+import * as tf from '@tensorflow/tfjs';
 import * as tfvis from "@tensorflow/tfjs-vis";
 
 import {Row, Button, Table} from "antd";
