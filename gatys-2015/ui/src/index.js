@@ -1,10 +1,11 @@
-import * as tf from '@tensorflow/tfjs';
+// import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 import * as tfvis from '@tensorflow/tfjs-vis';
 
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import ModelDetails from "./components/ModelDetails";
-import PredictRandomImage from "./components/PredictRandomImage";
+import ContentLossRandomImage from "./components/ContentLossRandomImage";
 
 const config = require('./config');
 
@@ -96,7 +97,7 @@ class RootComp extends Component {
             {this.state.modelLoaded && (
               <div>
                 <ModelDetails model={this.model}/>
-                <PredictRandomImage model={this.model}/>
+                <ContentLossRandomImage model={this.model}/>
               </div>
             )}
           </Col>

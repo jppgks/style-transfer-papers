@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import * as tf from '@tensorflow/tfjs-node';
 import * as tfvis from "@tensorflow/tfjs-vis";
 
 import {Row, Button, Table} from "antd";
@@ -30,6 +31,7 @@ function getLayerSummary(layer) {
     name: layer.name,
     trainable: layer.trainable,
     parameters: layer.countParams(),
+    index: layer.id,
     outputShape,
   };
 }
@@ -53,7 +55,12 @@ class ModelDetails extends Component {
   static getColumns() {
     return [
       {
-        title: 'Index', dataIndex: 'key', key: 'key',
+        title: 'Key', dataIndex: 'key', key: 'key',
+        width: 100,
+        sorter: (a, b) => a.key - b.key,
+      },
+      {
+        title: 'Index in model', dataIndex: 'index', key: 'index',
         width: 100,
         sorter: (a, b) => a.key - b.key,
       },
@@ -85,6 +92,7 @@ class ModelDetails extends Component {
       l => {
         return {
           'key': rowId++,
+          'index': l.index,
           'layerName': l.name,
           'outputShape': l.outputShape,
           'numParams': l.parameters,
