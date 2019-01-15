@@ -1,130 +1,89 @@
-import * as tf from '@tensorflow/tfjs';
-import * as tfvis from '@tensorflow/tfjs-vis';
-
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import ModelDetails from "./components/ModelDetails";
-import ContentLossRandomImage from "./components/ContentLossRandomImage";
-import {Button, Col, message, Row, Skeleton} from "antd";
+import {Col, Row} from "antd";
 import "antd/dist/antd.css";
 
-import ApolloClient, {gql} from "apollo-boost";
-import {ApolloProvider, Query} from "react-apollo";
+import ApolloClient from "apollo-boost";
+import {ApolloProvider} from "react-apollo";
+import ContentLossRandomImage from "./components/ContentLossRandomImage";
 
 const config = require('./config');
+//
+// const typeDefs = `
+//   type Query {
+//       model: Model,
+//       predict(inputs: Tensor!): Tensor,
+//       optimizeContentLoss(
+//           originalImage: Tensor, generatedImage: Tensor,
+//           layerName: String, steps: Int
+//       ): Tensor
+//   }
+//
+//   type Model {
+//       layers: [Layer]
+//   }
+//
+//   type Layer {
+//       name: String,
+//       id: Int,
+//       trainable: Boolean,
+//       outputShape: [Int],
+//       parameters: Int
+//   }
+//
+//   type Tensor {
+//       shape: [Int],
+//       dtype: String,
+//       values: [Float]
+//   }
+// `;
 
 const client = new ApolloClient({
   uri: config.api.uri
+  // clientState: {typeDefs}
 });
 
-window.tf = tf;
-window.tfvis = tfvis;
-
 class RootComp extends Component {
-  // async function initModel() {
-  initModel() {
-    this.setState({modelLoading: true});
-    const successMessage = () => {
-      message.success('Model loaded successfully.');
-    };
-
-    const model_host = config.model.host;
-
-    tf.loadModel(`${model_host}/model.json`)
-      .then((model) => {
-        this.model = model;
-        this.setState({modelLoaded: true, modelLoading: false});
-        // Show toast.
-        successMessage();
-        console.debug("Model loaded.");
-      });
-  }
-
   constructor(props) {
     super(props);
-    this.state = {
-      modelLoading: false,
-      modelLoaded: false
-    };
-    this.initModel = this.initModel.bind(this);
-  }
-
-
-  loadButtonText() {
-    let text = "loadButtonText";
-    if (!this.state.modelLoaded) {
-      if (this.state.modelLoading) {
-        text = "Loading model";
-      } else {
-        text = "Load model";
-      }
-    } else {
-      text = "Model loaded"
-    }
-    return text;
   }
 
   render() {
     return (
-      <div>
+      <ApolloProvider client={client}>
         <Row>
-          <Col span={2}></Col>
+          <Col span={2}/>
           <Col span={20}>
             <div className="tfjs-example-container">
               <h1>TensorFlow.js: Style Transfer</h1>
               <h2>TK subtitle</h2>
             </div>
           </Col>
-          <Col span={2}></Col>
+          <Col span={2}/>
         </Row>
         <Row>
-          <Col span={2}></Col>
+          <Col span={2}/>
           <Col span={20}>
-            <ApolloProvider client={client}>
-              <Query
-                query={gql`
-                          {
-                            info
-                          }
-                        `}
-              >
-                {({data}) =>
-                  <div>A greeting from the server: {data.info}</div>}
-              </Query>
-            </ApolloProvider>
             <h3>Description</h3>
             <p>TK</p>
           </Col>
-          <Col span={2}></Col>
+          <Col span={2}/>
         </Row>
         <Row>
-          <Col span={2}></Col>
+          <Col span={2}/>
           <Col span={20}>
-            <p>
-              Click the button to load the VGG-19 model into memory,
-              so we can use it to perform style transfer.
-            </p>
-            <Button type={"primary"} onClick={this.initModel}
-                    loading={this.state.modelLoading} disabled={this.state.modelLoaded}>
-              {this.loadButtonText()}
-            </Button>
-            {this.state.modelLoading &&
-            <Skeleton loading={!this.state.modelLoaded} active title paragraph={{rows: 1}}/>
-            }
-            {this.state.modelLoaded && (
-              <div>
-                <ModelDetails model={this.model}/>
-                <ContentLossRandomImage model={this.model}/>
-              </div>
-            )}
+            <div>
+              <ModelDetails/>
+              <ContentLossRandomImage/>
+            </div>
           </Col>
-          <Col span={2}></Col>
+          <Col span={2}/>
         </Row>
-      </div>)
+      </ApolloProvider>)
   }
 }
 
 let App = document.getElementById("app");
 
 ReactDOM.render(<RootComp/>, App);
-

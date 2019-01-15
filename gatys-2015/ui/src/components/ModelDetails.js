@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import * as tf from '@tensorflow/tfjs';
-import * as tfvis from "@tensorflow/tfjs-vis";
 
-import {Row, Button, Table} from "antd";
+import {Button, Row, Table} from "antd";
+import {Query} from "react-apollo";
+import gql from "graphql-tag";
 
 function formatShape(shape) {
   const oShape = shape.slice();
@@ -30,24 +30,36 @@ function getLayerSummary(layer) {
   return {
     name: layer.name,
     trainable: layer.trainable,
-    parameters: layer.countParams(),
+    parameters: layer.parameters,
     index: layer.id,
     outputShape,
   };
 }
+
+const GET_LAYERS = gql`
+    {
+        model {
+            layers {
+                name,
+                id,
+                trainable,
+                outputShape,
+                parameters
+            }
+        }
+    }
+`;
 
 
 class ModelDetails extends Component {
   constructor(props) {
     super(props);
 
-    this.showModel = this.showModel.bind(this);
     this.getDataSource = this.getDataSource.bind(this);
     this.toggleTable = this.toggleTable.bind(this);
 
     this.state = {
-      columns: ModelDetails.getColumns(),
-      dataSource: this.getDataSource(),
+      layers: undefined,
       showTable: false
     }
   }
@@ -81,9 +93,9 @@ class ModelDetails extends Component {
     ];
   }
 
-  getDataSource() {
+  getDataSource(layers) {
     const summary = {
-      layers: this.props.model.layers.map(getLayerSummary),
+      layers: layers,
     };
 
     let rowId = 1;
@@ -92,7 +104,7 @@ class ModelDetails extends Component {
       l => {
         return {
           'key': rowId++,
-          'index': l.index,
+          'index': l.id,
           'layerName': l.name,
           'outputShape': l.outputShape,
           'numParams': l.parameters,
@@ -105,31 +117,33 @@ class ModelDetails extends Component {
     this.setState({showTable: !this.state.showTable});
   }
 
-  showModel() {
-
-
-    const summaryContainer = document.getElementById('summary-canvas');
-    tfvis.render.table({headers, values}, summaryContainer);
-  }
-
   render() {
     return (
-      <div>
-        <Row style={{marginBottom: 10}}>
-          <h3>Model Details</h3>
-          <Button onClick={this.toggleTable}>Model summary</Button>
-        </Row>
-        <Row>
-          {/*<br/>*/}
-          {this.state.showTable &&
-          <Table columns={this.state.columns} dataSource={this.state.dataSource}
-                 size={'small'}
-                 pagination={{pageSize: 50, position: 'none'}} scroll={{y: 250}}
-                 footer={() => <span><a href='https://github.com/DavidCai1993/vgg19-tensorflowjs-model'>VGG model</a> exported for TF.js by David Cai.</span>}
-          />
-          }
-        </Row>
-      </div>
+      <Query query={GET_LAYERS}>
+        {({loading, error, data}) => {
+          if (loading) return null;
+          // TODO: catch errors gracefully
+          const layers = data.model.layers;
+          return (
+            <div>
+              <Row style={{marginBottom: 10}}>
+                <h3>Model Details</h3>
+                <Button onClick={this.toggleTable}>Model summary</Button>
+              </Row>
+              <Row>
+                {this.state.showTable &&
+                <Table columns={ModelDetails.getColumns()} dataSource={this.getDataSource(layers)}
+                       size={'small'}
+                       pagination={{pageSize: 50, position: 'none'}} scroll={{y: 250}}
+                       footer={() => <span><a
+                         href='https://github.com/DavidCai1993/vgg19-tensorflowjs-model'>VGG model</a> exported for TF.js by David Cai.</span>}
+                />
+                }
+              </Row>
+            </div>
+          )
+        }}
+      </Query>
     );
   }
 }
