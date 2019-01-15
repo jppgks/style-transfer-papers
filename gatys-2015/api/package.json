@@ -3,21 +3,26 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "netlify-lambda serve src/lambda",
-    "build": "netlify-lambda build src/lambda"
+    "start": "NODE_ENV=development ts-node src/graphql-server.ts",
+    "build": "NODE_ENV=production ts-node src/graphql-server.ts",
+    "postinstall": "yarn upgrade --pattern @tensorflow"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^0.2.1",
     "@types/aws-lambda": "^8.10.17",
+    "@types/express": "^4.16.0",
     "@types/node": "^10.12.18",
-    "apollo-server-lambda": "^2.3.1",
+    "apollo-server-express": "^2.3.1",
     "babel-loader": "^8.0.5",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
     "graphql": "^14.0.2",
+    "graphql-tag": "^2.10.0",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
   },
   "devDependencies": {
     "@babel/plugin-transform-object-assign": "^7.2.0",
-    "@babel/preset-typescript": "^7.1.0",
-    "netlify-lambda": "^1.1.1"
+    "@babel/preset-typescript": "^7.1.0"
   }
 }
