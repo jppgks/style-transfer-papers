@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import * as tf from '@tensorflow/tfjs';
-import {Card} from "antd";
-
+import {Button, Card} from "antd";
 import ImageUpload from './ImageUpload';
-import {graphql, QueryRenderer} from "react-relay";
+import {fetchQuery, graphql} from "react-relay";
+
+const assert = require('assert');
 
 const environment = require('../environment');
 
@@ -30,27 +31,6 @@ function cropImage(img) {
   return img.slice([0, startingWidth, startingHeight, 0], [-1, endingWidth, endingHeight, -1]);
 }
 
-// function generateRandomInputImage() {
-//   let imageData = new ImageData(224, 224);
-//
-//   // Fill image with 'color wheel'-like data
-//   for (let i = 0; i < imageData.data.length; i += 4) {
-//     // Percentage in the x direction, times 255
-//     let x = (i % (224 * 4)) / (224 * 4) * 255;
-//     // Percentage in the y direction, times 255
-//     let y = Math.ceil(i / (224 * 4)) / 100 * 255;
-//
-//     // Modify pixel data
-//     imageData.data[i] = x; // R value
-//     imageData.data[i + 1] = y; // G value
-//     imageData.data[i + 2] = 255 - x; // B value
-//     imageData.data[i + 3] = 255; // A value
-//   }
-//
-//   // Return 4D Tensor (batch, )
-//   return tf.expandDims(tf.fromPixels(imageData));
-// }
-
 const GET_OPTIMIZED_IMAGE = graphql`
     query ContentLossRandomImageQuery($originalImage: [Float],
     $originalShape: [Int],
@@ -74,10 +54,7 @@ const GET_OPTIMIZED_IMAGE = graphql`
 class ContentLossRandomImage extends Component {
   constructor(props) {
     super(props);
-    // this.predictRandomImage = this.predictRandomImage.bind(this);
-    // this.getContentLoss = this.getContentLoss.bind(this);
-    // this.optimizeContentLoss = this.optimizeContentLoss.bind(this);
-    // this.optimizeInputImage = this.optimizeInputImage.bind(this);
+    this.optimizeInputImage = this.optimizeInputImage.bind(this);
     this.setInputImage = this.setInputImage.bind(this);
     this.state = {
       inputImage: null
@@ -85,41 +62,12 @@ class ContentLossRandomImage extends Component {
 
   }
 
-  // predictRandomImage() {
-  //   // Check that calling model works, perhaps also try to get layer output now
-  //   let randomImage = generateRandomInputImage();
-  //   randomImage.print(true); // verbose print
-  //   this.props.model.predict(randomImage, {batchSize: 1}).print();
-  //   randomImage.dispose();
-  // }
-
-  // optimizeContentLoss(originalImage, layerName) {
-  //   // White noise image to optimize
-  //   let generatedImage = tf.randomUniform(originalImage.shape, -1, 1).variable();
-  //
-  //   // Paint generated image to canvas.
-  //   const canvas = document.getElementById('generated-img');
-  //   tf.toPixels(
-  //     tf.squeeze(generatedImage).clipByValue(0, 1)
-  //       .mul(tf.scalar(255))
-  //       .cast('int32'),
-  //     canvas);
-  //
-  //   // TODO: make GraphQL query field
-  //   // API: `optimizeContentLoss(originalImage, generatedImage, layerName, steps)`
-  //   // returning optimized image
-  //
   //   // visualize result: TODO: return through GraphQL subscription
   //   tf.toPixels(
   //     tf.squeeze(generatedImage).clipByValue(0, 1)
   //       .mul(tf.scalar(255))
   //       .cast('int32'),
   //     canvas);
-  // }
-  //
-  // optimizeInputImage() {
-  //   let image = this.state.inputImage;
-  //   this.optimizeContentLoss(image, 'block1_conv1');
   // }
 
   /**
@@ -138,7 +86,7 @@ class ContentLossRandomImage extends Component {
 
   computeQueryVars() {
     const layerName = "block1_conv1";
-    const steps = 10;
+    const steps = 1000;
     const originalImage = Object.values(this.state.inputImage.dataSync());
     // console.debug(originalImage);
     const originalShape = this.state.inputImage.shape;
@@ -148,43 +96,34 @@ class ContentLossRandomImage extends Component {
     return {originalImage, originalShape, generatedImage, generatedShape, layerName, steps};
   }
 
+  optimizeInputImage() {
+    assert(this.state.inputImage);
+    fetchQuery(environment, GET_OPTIMIZED_IMAGE, this.computeQueryVars())
+      .then(data => {
+        // Paint optimized image to canvas
+        console.debug("Data received");
+        console.debug(data);
+        const canvas = document.getElementById('generated-img');
+        const result = data.optimizeContentLoss;
+        const pixelTensor = tf.tensor(result.values, result.shape, result.dtype);
+        tf.toPixels(
+          tf.squeeze(pixelTensor),
+          canvas);
+      })
+      .catch(reason => {
+        console.error("Error loading content optimized image.");
+        console.error(reason);
+      });
+  }
+
   render() {
     return (<div>
       <ImageUpload imageSetter={this.setInputImage}/>
-      {/*<Button onClick={this.optimizeInputImage}>Optimize</Button>*/}
+      {this.state.inputImage && <Button onClick={this.optimizeInputImage}>Optimize</Button>}
       <Card style={{width: 224}}
             cover={<canvas width={224} height={224} id="generated-img"/>}>
         Generated image
       </Card>
-      {this.state.inputImage &&
-      <QueryRenderer
-        environment={environment}
-        query={GET_OPTIMIZED_IMAGE}
-        variables={this.computeQueryVars()}
-        render={({error, props}) => {
-          if (error) {
-            console.error("Error loading content optimized image.");
-            console.error(error);
-            return null;
-          }
-          if (!props) {
-            console.debug("Loading content optimized image...");
-            return null;
-          }
-
-          // Paint optimized image to canvas
-          console.debug("Data received");
-          console.debug(props);
-          const canvas = document.getElementById('generated-img');
-          const result = props.optimizeContentLoss;
-          const pixelTensor = tf.tensor(result.values, result.shape, result.dtype);
-          tf.toPixels(
-            tf.squeeze(pixelTensor),
-            canvas);
-
-          return null;
-        }} />
-      }
     </div>);
   }
 }
