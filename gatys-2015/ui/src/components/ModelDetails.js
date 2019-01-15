@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 
 import {Button, Row, Table} from "antd";
-import {graphql, QueryRenderer, fetchQuery} from 'react-relay';
+import {fetchQuery, graphql, QueryRenderer} from 'react-relay';
 
 const environment = require('../environment');
 
@@ -64,10 +64,13 @@ class ModelDetails extends Component {
       showTable: false
     };
 
-    fetchQuery(environment, query, variables)
+    fetchQuery(environment, GET_LAYERS, {})
       .then(data => {
-        // access the graphql response
-      });
+        console.debug("Model details received.");
+        console.debug(data);
+        this.setState({layers: data.model.layers});
+      })
+      .catch(reason => console.error(reason));
   }
 
   static getColumns() {
@@ -125,44 +128,24 @@ class ModelDetails extends Component {
 
   render() {
     return (
-      <QueryRenderer
-        environment={environment}
-        query={GET_LAYERS}
-        variables={{}}
-        render={({error, props}) => {
-          if (error) {
-            console.error("Error loading model details.");
-            console.error(error);
-            return null;
-          }
-
-          if (!props) {
-            console.debug("Loading model details...");
-            return null;
-          }
-
-          console.debug("Model details received.");
-          console.debug(props);
-          const layers = props.model.layers;
-          return (
-            <div>
-              <Row style={{marginBottom: 10}}>
-                <h3>Model Details</h3>
-                <Button onClick={this.toggleTable}>Model summary</Button>
-              </Row>
-              <Row>
-                {this.state.showTable &&
-                <Table columns={ModelDetails.getColumns()} dataSource={this.getDataSource(layers)}
-                       size={'small'}
-                       pagination={{pageSize: 50, position: 'none'}} scroll={{y: 250}}
-                       footer={() => <span><a
-                         href='https://github.com/DavidCai1993/vgg19-tensorflowjs-model'>VGG model</a> exported for TF.js by David Cai.</span>}
-                />
-                }
-              </Row>
-            </div>
-          )
-        }} />
+      <div>
+        {this.state.layers && <div>
+          <Row style={{marginBottom: 10}}>
+            <h3>Model Details</h3>
+            <Button onClick={this.toggleTable}>Model summary</Button>
+          </Row>
+          <Row>
+            {this.state.showTable &&
+            <Table columns={ModelDetails.getColumns()} dataSource={this.getDataSource(this.state.layers)}
+                   size={'small'}
+                   pagination={{pageSize: 50, position: 'none'}} scroll={{y: 250}}
+                   footer={() => <span><a
+                     href='https://github.com/DavidCai1993/vgg19-tensorflowjs-model'>VGG model</a> exported for TF.js by David Cai.</span>}
+            />
+            }
+          </Row>
+        </div>}
+      </div>
     );
   }
 }
