@@ -3,8 +3,9 @@ import * as tf from '@tensorflow/tfjs';
 import {Card} from "antd";
 
 import ImageUpload from './ImageUpload';
-import {Query} from "react-apollo";
-import gql from "graphql-tag";
+import {graphql, QueryRenderer} from "react-relay";
+
+const environment = require('../environment');
 
 /**
  *
@@ -50,8 +51,8 @@ function cropImage(img) {
 //   return tf.expandDims(tf.fromPixels(imageData));
 // }
 
-const GET_OPTIMIZED_IMAGE = gql`
-    query GetOptimizedImage($originalImage: [Float],
+const GET_OPTIMIZED_IMAGE = graphql`
+    query ContentLossRandomImageQuery($originalImage: [Float],
     $originalShape: [Int],
     $generatedImage: [Float],
     $generatedShape: [Int],
@@ -156,32 +157,33 @@ class ContentLossRandomImage extends Component {
         Generated image
       </Card>
       {this.state.inputImage &&
-      <Query query={GET_OPTIMIZED_IMAGE}
-             variables={this.computeQueryVars()}>
-        {({loading, error, data}) => {
-          if (loading) {
-            console.debug("Loading...");
+      <QueryRenderer
+        environment={environment}
+        query={GET_OPTIMIZED_IMAGE}
+        variables={this.computeQueryVars()}
+        render={({error, props}) => {
+          if (error) {
+            console.error("Error loading content optimized image.");
+            console.error(error);
             return null;
           }
-
-          if (error) {
-            console.debug("Error");
-            console.error(error);
+          if (!props) {
+            console.debug("Loading content optimized image...");
+            return null;
           }
 
           // Paint optimized image to canvas
           console.debug("Data received");
-          console.debug(data);
+          console.debug(props);
           const canvas = document.getElementById('generated-img');
-          const result = data.optimizeContentLoss;
+          const result = props.optimizeContentLoss;
           const pixelTensor = tf.tensor(result.values, result.shape, result.dtype);
           tf.toPixels(
             tf.squeeze(pixelTensor),
             canvas);
 
           return null;
-        }}
-      </Query>
+        }} />
       }
     </div>);
   }

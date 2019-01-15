@@ -4,15 +4,18 @@
     "@tensorflow/tfjs-node": "^0.2.1",
     "@tensorflow/tfjs-vis": "^0.4.0",
     "antd": "^3.11.6",
-    "apollo-boost": "^0.1.23",
     "assets": "^3.0.1",
     "css": "^2.2.4",
+    "graphql": "0.13",
+    "graphql-relay": "^0.5.5",
     "react": "^16.7.0",
-    "react-apollo": "^2.3.3",
     "react-dom": "^16.7.0",
+    "react-relay": "^1.7.0",
+    "relay-runtime": "^1.7.0",
     "yarn": "^1.12.3"
   },
   "scripts": {
+    "relay": "relay-compiler --watch --src ./src --schema ./schema.graphql",
     "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --open",
     "build": "cross-env NODE_ENV=production parcel build index.html --no-minify --public-url ./",
     "link-local": "yalc link",
@@ -21,12 +24,13 @@
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/plugin-transform-runtime": "^7.2.0",
+    "babel-plugin-relay": "^1.7.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "clang-format": "^1.2.4",
     "cross-env": "^5.2.0",
-    "graphql": "^14.0.2",
     "parcel-bundler": "^1.11.0",
+    "relay-compiler": "^1.7.0",
     "yalc": "^1.0.0-pre.27"
   }
 }

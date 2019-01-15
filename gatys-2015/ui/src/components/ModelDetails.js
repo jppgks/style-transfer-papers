@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 
 import {Button, Row, Table} from "antd";
-import {Query} from "react-apollo";
-import gql from "graphql-tag";
+import {graphql, QueryRenderer, fetchQuery} from 'react-relay';
+
+const environment = require('../environment');
 
 function formatShape(shape) {
   const oShape = shape.slice();
@@ -31,17 +32,17 @@ function getLayerSummary(layer) {
     name: layer.name,
     trainable: layer.trainable,
     parameters: layer.parameters,
-    index: layer.id,
+    index: layer.index,
     outputShape,
   };
 }
 
-const GET_LAYERS = gql`
-    {
+const GET_LAYERS = graphql`
+    query ModelDetailsQuery {
         model {
             layers {
                 name,
-                id,
+                index,
                 trainable,
                 outputShape,
                 parameters
@@ -61,7 +62,12 @@ class ModelDetails extends Component {
     this.state = {
       layers: undefined,
       showTable: false
-    }
+    };
+
+    fetchQuery(environment, query, variables)
+      .then(data => {
+        // access the graphql response
+      });
   }
 
   static getColumns() {
@@ -104,7 +110,7 @@ class ModelDetails extends Component {
       l => {
         return {
           'key': rowId++,
-          'index': l.id,
+          'index': l.index,
           'layerName': l.name,
           'outputShape': l.outputShape,
           'numParams': l.parameters,
@@ -119,11 +125,25 @@ class ModelDetails extends Component {
 
   render() {
     return (
-      <Query query={GET_LAYERS}>
-        {({loading, error, data}) => {
-          if (loading) return null;
-          // TODO: catch errors gracefully
-          const layers = data.model.layers;
+      <QueryRenderer
+        environment={environment}
+        query={GET_LAYERS}
+        variables={{}}
+        render={({error, props}) => {
+          if (error) {
+            console.error("Error loading model details.");
+            console.error(error);
+            return null;
+          }
+
+          if (!props) {
+            console.debug("Loading model details...");
+            return null;
+          }
+
+          console.debug("Model details received.");
+          console.debug(props);
+          const layers = props.model.layers;
           return (
             <div>
               <Row style={{marginBottom: 10}}>
@@ -142,8 +162,7 @@ class ModelDetails extends Component {
               </Row>
             </div>
           )
-        }}
-      </Query>
+        }} />
     );
   }
 }
