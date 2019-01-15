@@ -1,41 +1,9 @@
 import React, {Component} from 'react';
 
 import {Button, Row, Table} from "antd";
-import {fetchQuery, graphql, QueryRenderer} from 'react-relay';
+import {fetchQuery, graphql} from 'react-relay';
 
 const environment = require('../environment');
-
-function formatShape(shape) {
-  const oShape = shape.slice();
-  if (oShape.length === 0) {
-    return 'Scalar';
-  }
-  if (oShape[0] === null) {
-    oShape[0] = 'batch';
-  }
-  return `[${oShape.join(',')}]`;
-}
-
-/*
- * Gets summary information/metadata about a layer.
- */
-function getLayerSummary(layer) {
-  let outputShape;
-  if (Array.isArray(layer.outputShape[0])) {
-    const shapes = (layer.outputShape).map(s => formatShape(s));
-    outputShape = `[${shapes.join(', ')}]`;
-  } else {
-    outputShape = formatShape(layer.outputShape);
-  }
-
-  return {
-    name: layer.name,
-    trainable: layer.trainable,
-    parameters: layer.parameters,
-    index: layer.index,
-    outputShape,
-  };
-}
 
 const GET_LAYERS = graphql`
     query ModelDetailsQuery {
@@ -51,6 +19,34 @@ const GET_LAYERS = graphql`
     }
 `;
 
+function getColumns() {
+  return [
+    {
+      title: 'Key', dataIndex: 'key', key: 'key',
+      width: 100,
+      sorter: (a, b) => a.key - b.key,
+    },
+    {
+      title: 'Index in model', dataIndex: 'index', key: 'index',
+      width: 100,
+      sorter: (a, b) => a.key - b.key,
+    },
+    {
+      title: 'Layer Name', dataIndex: 'layerName', key: 'layerName',
+      width: 200,
+      filters: [{text: 'Trainable', value: 'Trainable'}],
+      onFilter: (value, record) => value === 'Trainable' ? record.trainable : true,
+    },
+    {
+      title: 'Output Shape', dataIndex: 'outputShape', key: 'outputShape',
+      width: 300,
+    },
+    {
+      title: '# Of Params', dataIndex: 'numParams', key: 'numParams',
+      sorter: (a, b) => a.numParams - b.numParams,
+    }
+  ];
+}
 
 class ModelDetails extends Component {
   constructor(props) {
@@ -71,35 +67,6 @@ class ModelDetails extends Component {
         this.setState({layers: data.model.layers});
       })
       .catch(reason => console.error(reason));
-  }
-
-  static getColumns() {
-    return [
-      {
-        title: 'Key', dataIndex: 'key', key: 'key',
-        width: 100,
-        sorter: (a, b) => a.key - b.key,
-      },
-      {
-        title: 'Index in model', dataIndex: 'index', key: 'index',
-        width: 100,
-        sorter: (a, b) => a.key - b.key,
-      },
-      {
-        title: 'Layer Name', dataIndex: 'layerName', key: 'layerName',
-        width: 200,
-        filters: [{text: 'Trainable', value: 'Trainable'}],
-        onFilter: (value, record) => value === 'Trainable' ? record.trainable : true,
-      },
-      {
-        title: 'Output Shape', dataIndex: 'outputShape', key: 'outputShape',
-        width: 300,
-      },
-      {
-        title: '# Of Params', dataIndex: 'numParams', key: 'numParams',
-        sorter: (a, b) => a.numParams - b.numParams,
-      }
-    ];
   }
 
   getDataSource(layers) {
@@ -136,7 +103,7 @@ class ModelDetails extends Component {
           </Row>
           <Row>
             {this.state.showTable &&
-            <Table columns={ModelDetails.getColumns()} dataSource={this.getDataSource(this.state.layers)}
+            <Table columns={getColumns()} dataSource={this.getDataSource(this.state.layers)}
                    size={'small'}
                    pagination={{pageSize: 50, position: 'none'}} scroll={{y: 250}}
                    footer={() => <span><a
