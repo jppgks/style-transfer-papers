@@ -15,24 +15,28 @@ const typeDefs = gql`
     }
   
     type Model {
+        id: ID,
         layers: [Layer]
     }
   
     type Layer {
+        id: ID,
         name: String,
-        id: Int,
+        index: Int,
         trainable: Boolean,
         outputShape: [Int],
         parameters: Int
     }
     
     input TensorIn {
+        id: ID,
         shape: [Int],
         dtype: String,
         values: [Float]
     }
   
     type Tensor {
+        id: ID,
         shape: [Int],
         dtype: String,
         values: [Float]

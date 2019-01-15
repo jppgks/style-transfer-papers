@@ -4,5 +4,6 @@ import * as tf from '@tensorflow/tfjs';
 export function getLayerResolver() {
   return {
     parameters: (layer: tf.layers.Layer) => layer.countParams(),
+    index: (layer: tf.layers.Layer) => layer.id,
   };
 }
